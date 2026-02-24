@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [claude/init-repo-nBxNW]
+    branches: [main]
 
 permissions:
   contents: read

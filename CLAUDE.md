@@ -2,7 +2,7 @@
 
 ## Workflow
 
-- Push directly to main. No PRs required.
+- Work on a `claude/*` branch. Create a PR to merge into `main`.
 - Commit and push freely without asking for confirmation.
 - Take autonomous action — prefer doing over asking.
 
