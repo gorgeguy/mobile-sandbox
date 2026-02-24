@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Sandbox</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #0a0a1a;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 3rem 1.5rem 2rem;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .logo {
+      font-size: 4rem;
+      margin-bottom: 0.5rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .tagline {
+      font-size: 1.1rem;
+      color: #888;
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      padding: 0 1.5rem;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      transition: transform 0.2s, background 0.2s;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .card:active {
+      transform: scale(0.95);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .card-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .card-desc { font-size: 0.75rem; color: #666; }
+
+    .sandbox-area {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .sandbox-area h2 {
+      font-size: 1rem;
+      color: #888;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    #canvas-container {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      height: 300px;
+      position: relative;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    #draw-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .color-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .color-btn:active { transform: scale(0.9); }
+    .color-btn.active { border-color: white; transform: scale(1.1); }
+
+    .clear-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ccc;
+      padding: 0.5rem 1.25rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .clear-btn:active { background: rgba(255, 255, 255, 0.2); }
+
+    .counter-section {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .counter-section h2 {
+      font-size: 1rem;
+      color: #888;
+      margin-bottom: 1rem;
+    }
+
+    .counter-display {
+      font-size: 4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      transition: transform 0.1s;
+      user-select: none;
+    }
+
+    .counter-display.bump { transform: scale(1.15); }
+
+    .counter-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .counter-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: transform 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .counter-btn:active { transform: scale(0.9); background: rgba(255, 255, 255, 0.15); }
+
+    footer {
+      margin-top: 3rem;
+      padding: 2rem;
+      text-align: center;
+      color: #444;
+      font-size: 0.8rem;
+    }
+
+    .particles {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+
+<canvas class="particles" id="particles"></canvas>
+
+<div class="hero">
+  <div class="logo">📱</div>
+  <h1>Mobile Sandbox</h1>
+  <p class="tagline">A human + AI playground.<br>Let's see what we can build together.</p>
+</div>
+
+<div class="card-grid">
+  <div class="card" onclick="showToast('Ideas incoming...')">
+    <div class="card-icon">💡</div>
+    <div class="card-title">Ideas</div>
+    <div class="card-desc">What should we build next?</div>
+  </div>
+  <div class="card" onclick="showToast('Let\'s ship it!')">
+    <div class="card-icon">🚀</div>
+    <div class="card-title">Ship It</div>
+    <div class="card-desc">From idea to reality, fast</div>
+  </div>
+  <div class="card" onclick="showToast('Breaking things is learning')">
+    <div class="card-icon">🧪</div>
+    <div class="card-title">Experiment</div>
+    <div class="card-desc">Try weird stuff, no rules</div>
+  </div>
+  <div class="card" onclick="showToast('Better every iteration')">
+    <div class="card-icon">🔄</div>
+    <div class="card-title">Iterate</div>
+    <div class="card-desc">Tweak, improve, repeat</div>
+  </div>
+</div>
+
+<div class="sandbox-area">
+  <h2>Draw something</h2>
+  <div id="canvas-container">
+    <canvas id="draw-canvas"></canvas>
+  </div>
+  <div class="toolbar">
+    <button class="color-btn active" style="background:#667eea" data-color="#667eea"></button>
+    <button class="color-btn" style="background:#f093fb" data-color="#f093fb"></button>
+    <button class="color-btn" style="background:#43e97b" data-color="#43e97b"></button>
+    <button class="color-btn" style="background:#fa709a" data-color="#fa709a"></button>
+    <button class="color-btn" style="background:#fff" data-color="#ffffff"></button>
+    <button class="clear-btn" onclick="clearCanvas()">Clear</button>
+  </div>
+</div>
+
+<div class="counter-section">
+  <h2>Tap counter</h2>
+  <div class="counter-display" id="counter">0</div>
+  <div class="counter-buttons">
+    <button class="counter-btn" onclick="updateCounter(-1)">−</button>
+    <button class="counter-btn" onclick="updateCounter(1)">+</button>
+  </div>
+</div>
+
+<footer>
+  Built with curiosity by a human & Claude
+</footer>
+
+<div id="toast" style="
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: rgba(255,255,255,0.12); backdrop-filter: blur(10px);
+  padding: 0.75rem 1.5rem; border-radius: 24px; font-size: 0.9rem;
+  color: #ddd; transition: transform 0.3s ease; pointer-events: none; white-space: nowrap;
+"></div>
+
+<script>
+  // Particles
+  const pc = document.getElementById('particles');
+  const pctx = pc.getContext('2d');
+  let dots = [];
+
+  function resizeParticles() {
+    pc.width = window.innerWidth;
+    pc.height = window.innerHeight;
+  }
+  resizeParticles();
+  window.addEventListener('resize', resizeParticles);
+
+  for (let i = 0; i < 40; i++) {
+    dots.push({
+      x: Math.random() * pc.width,
+      y: Math.random() * pc.height,
+      r: Math.random() * 2 + 0.5,
+      dx: (Math.random() - 0.5) * 0.3,
+      dy: (Math.random() - 0.5) * 0.3,
+      o: Math.random() * 0.3 + 0.1
+    });
+  }
+
+  function animateParticles() {
+    pctx.clearRect(0, 0, pc.width, pc.height);
+    dots.forEach(d => {
+      d.x += d.dx; d.y += d.dy;
+      if (d.x < 0 || d.x > pc.width) d.dx *= -1;
+      if (d.y < 0 || d.y > pc.height) d.dy *= -1;
+      pctx.beginPath();
+      pctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      pctx.fillStyle = `rgba(102, 126, 234, ${d.o})`;
+      pctx.fill();
+    });
+    requestAnimationFrame(animateParticles);
+  }
+  animateParticles();
+
+  // Drawing canvas
+  const canvas = document.getElementById('draw-canvas');
+  const ctx = canvas.getContext('2d');
+  const container = document.getElementById('canvas-container');
+  let drawing = false;
+  let currentColor = '#667eea';
+
+  function resizeCanvas() {
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+  }
+
+  function startDraw(e) {
+    e.preventDefault();
+    drawing = true;
+    const p = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  }
+
+  function draw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const p = getPos(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.strokeStyle = currentColor;
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+  }
+
+  function stopDraw() { drawing = false; }
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', stopDraw);
+  canvas.addEventListener('touchstart', startDraw, { passive: false });
+  canvas.addEventListener('touchmove', draw, { passive: false });
+  canvas.addEventListener('touchend', stopDraw);
+
+  document.querySelectorAll('.color-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentColor = btn.dataset.color;
+    });
+  });
+
+  function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // Counter
+  let count = 0;
+  function updateCounter(n) {
+    count = Math.max(0, count + n);
+    const el = document.getElementById('counter');
+    el.textContent = count;
+    el.classList.add('bump');
+    setTimeout(() => el.classList.remove('bump'), 100);
+  }
+
+  // Toast
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => {
+      t.style.transform = 'translateX(-50%) translateY(100px)';
+    }, 1800);
+  }
+</script>
+
+</body>
+</html>
