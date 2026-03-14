@@ -2,403 +2,675 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mobile Sandbox</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Pickleball Smash</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: #0a0a1a;
-      color: #e0e0e0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      overflow-x: hidden;
-    }
-
-    .hero {
-      text-align: center;
-      padding: 3rem 1.5rem 2rem;
-      max-width: 600px;
-      width: 100%;
-    }
-
-    .logo {
-      font-size: 4rem;
-      margin-bottom: 0.5rem;
-      animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      margin-bottom: 0.5rem;
-    }
-
-    .tagline {
-      font-size: 1.1rem;
-      color: #888;
-      margin-bottom: 2rem;
-      line-height: 1.5;
-    }
-
-    .card-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      padding: 0 1.5rem;
-      max-width: 600px;
-      width: 100%;
-    }
-
-    .card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 1.5rem 1rem;
-      text-align: center;
-      transition: transform 0.2s, background 0.2s;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .card:active {
-      transform: scale(0.95);
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .card-icon { font-size: 2rem; margin-bottom: 0.5rem; }
-    .card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; }
-    .card-desc { font-size: 0.75rem; color: #666; }
-
-    .sandbox-area {
-      margin-top: 2rem;
-      padding: 1.5rem;
-      max-width: 600px;
-      width: 100%;
-    }
-
-    .sandbox-area h2 {
-      font-size: 1rem;
-      color: #888;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-
-    #canvas-container {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      height: 300px;
-      position: relative;
+      background: #1a1a2e;
       overflow: hidden;
       touch-action: none;
-    }
-
-    #draw-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .toolbar {
-      display: flex;
-      justify-content: center;
-      gap: 0.75rem;
-      margin-top: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .color-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: transform 0.15s, border-color 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .color-btn:active { transform: scale(0.9); }
-    .color-btn.active { border-color: white; transform: scale(1.1); }
-
-    .clear-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #ccc;
-      padding: 0.5rem 1.25rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .clear-btn:active { background: rgba(255, 255, 255, 0.2); }
-
-    .counter-section {
-      margin-top: 2rem;
-      padding: 1.5rem;
-      max-width: 600px;
-      width: 100%;
-      text-align: center;
-    }
-
-    .counter-section h2 {
-      font-size: 1rem;
-      color: #888;
-      margin-bottom: 1rem;
-    }
-
-    .counter-display {
-      font-size: 4rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      transition: transform 0.1s;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       user-select: none;
+      -webkit-user-select: none;
     }
-
-    .counter-display.bump { transform: scale(1.15); }
-
-    .counter-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .counter-btn {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      background: rgba(255, 255, 255, 0.08);
-      color: white;
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: transform 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .counter-btn:active { transform: scale(0.9); background: rgba(255, 255, 255, 0.15); }
-
-    footer {
-      margin-top: 3rem;
-      padding: 2rem;
-      text-align: center;
-      color: #444;
-      font-size: 0.8rem;
-    }
-
-    .particles {
+    canvas { display: block; }
+    #ui-overlay {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       pointer-events: none;
-      z-index: -1;
+      z-index: 10;
     }
+    #start-screen, #game-over-screen {
+      pointer-events: auto;
+      text-align: center;
+      color: white;
+    }
+    #start-screen h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #4CAF50, #8BC34A);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    #start-screen p {
+      color: #aaa;
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
+    .play-btn {
+      background: linear-gradient(135deg, #4CAF50, #66BB6A);
+      border: none;
+      color: white;
+      padding: 1rem 3rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .play-btn:active { transform: scale(0.93); }
+    #game-over-screen h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #ff6b6b;
+    }
+    #game-over-screen .final-score {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #4CAF50;
+      margin-bottom: 0.25rem;
+    }
+    #game-over-screen p {
+      color: #aaa;
+      margin-bottom: 1.5rem;
+    }
+    #score-hud {
+      position: fixed;
+      top: 1rem;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .score-box {
+      background: rgba(0,0,0,0.5);
+      padding: 0.4rem 1rem;
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-<canvas class="particles" id="particles"></canvas>
+<canvas id="game"></canvas>
 
-<div class="hero">
-  <div class="logo">📱</div>
-  <h1>Mobile Sandbox</h1>
-  <p class="tagline">A human + AI playground.<br>Let's see what we can build together.</p>
+<div id="score-hud" class="hidden">
+  <div class="score-box">You: <span id="player-score">0</span></div>
+  <div class="score-box">CPU: <span id="cpu-score">0</span></div>
 </div>
 
-<div class="card-grid">
-  <div class="card" onclick="showToast('Ideas incoming...')">
-    <div class="card-icon">💡</div>
-    <div class="card-title">Ideas</div>
-    <div class="card-desc">What should we build next?</div>
+<div id="ui-overlay">
+  <div id="start-screen">
+    <h1>Pickleball Smash</h1>
+    <p>Swipe to hit the ball.<br>First to 11 wins!</p>
+    <button class="play-btn" id="start-btn">Play</button>
   </div>
-  <div class="card" onclick="showToast('Let\'s ship it!')">
-    <div class="card-icon">🚀</div>
-    <div class="card-title">Ship It</div>
-    <div class="card-desc">From idea to reality, fast</div>
-  </div>
-  <div class="card" onclick="showToast('Breaking things is learning')">
-    <div class="card-icon">🧪</div>
-    <div class="card-title">Experiment</div>
-    <div class="card-desc">Try weird stuff, no rules</div>
-  </div>
-  <div class="card" onclick="showToast('Better every iteration')">
-    <div class="card-icon">🔄</div>
-    <div class="card-title">Iterate</div>
-    <div class="card-desc">Tweak, improve, repeat</div>
+  <div id="game-over-screen" class="hidden">
+    <h2 id="result-text">Game Over</h2>
+    <div class="final-score" id="final-score">0 - 0</div>
+    <p id="result-sub"></p>
+    <button class="play-btn" id="restart-btn">Play Again</button>
   </div>
 </div>
-
-<div class="sandbox-area">
-  <h2>Draw something</h2>
-  <div id="canvas-container">
-    <canvas id="draw-canvas"></canvas>
-  </div>
-  <div class="toolbar">
-    <button class="color-btn active" style="background:#667eea" data-color="#667eea"></button>
-    <button class="color-btn" style="background:#f093fb" data-color="#f093fb"></button>
-    <button class="color-btn" style="background:#43e97b" data-color="#43e97b"></button>
-    <button class="color-btn" style="background:#fa709a" data-color="#fa709a"></button>
-    <button class="color-btn" style="background:#fff" data-color="#ffffff"></button>
-    <button class="clear-btn" onclick="clearCanvas()">Clear</button>
-  </div>
-</div>
-
-<div class="counter-section">
-  <h2>Tap counter</h2>
-  <div class="counter-display" id="counter">0</div>
-  <div class="counter-buttons">
-    <button class="counter-btn" onclick="updateCounter(-1)">−</button>
-    <button class="counter-btn" onclick="updateCounter(1)">+</button>
-  </div>
-</div>
-
-<footer>
-  Built with curiosity by a human & Claude
-</footer>
-
-<div id="toast" style="
-  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
-  background: rgba(255,255,255,0.12); backdrop-filter: blur(10px);
-  padding: 0.75rem 1.5rem; border-radius: 24px; font-size: 0.9rem;
-  color: #ddd; transition: transform 0.3s ease; pointer-events: none; white-space: nowrap;
-"></div>
 
 <script>
-  // Particles
-  const pc = document.getElementById('particles');
-  const pctx = pc.getContext('2d');
-  let dots = [];
+// ── Canvas Setup ──
+const canvas = document.getElementById('game');
+const c = canvas.getContext('2d');
 
-  function resizeParticles() {
-    pc.width = window.innerWidth;
-    pc.height = window.innerHeight;
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ── Game State ──
+const STATE = { MENU: 0, SERVING: 1, PLAY: 2, POINT_SCORED: 3, GAME_OVER: 4 };
+let state = STATE.MENU;
+let playerScore = 0;
+let cpuScore = 0;
+let servingPlayer = 'player'; // who serves
+let rallyCount = 0;
+
+// ── Court Dimensions (relative to canvas) ──
+function court() {
+  const w = canvas.width;
+  const h = canvas.height;
+  const courtW = Math.min(w * 0.92, 500);
+  const courtH = h * 0.75;
+  const left = (w - courtW) / 2;
+  const top = (h - courtH) / 2 + 20;
+  const netY = top + courtH * 0.4; // net is 40% from top (perspective)
+  const kitchenTop = netY - courtH * 0.07;
+  const kitchenBot = netY + courtH * 0.10;
+  return { left, top, w: courtW, h: courtH, right: left + courtW, bottom: top + courtH, netY, kitchenTop, kitchenBot };
+}
+
+// ── Ball ──
+let ball = { x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, radius: 8, shadow: true, active: false, trail: [] };
+
+// ── Paddles ──
+let player = { x: 0, y: 0, w: 60, h: 14, speed: 0, targetX: 0 };
+let cpu = { x: 0, y: 0, w: 55, h: 12, speed: 3.5, targetX: 0, reactionDelay: 0, lastUpdate: 0 };
+
+// ── Swipe tracking ──
+let swipe = { active: false, startX: 0, startY: 0, startTime: 0, endX: 0, endY: 0 };
+let lastHitTime = 0;
+
+// ── Init positions ──
+function initPositions() {
+  const ct = court();
+  player.x = ct.left + ct.w / 2;
+  player.y = ct.bottom - 30;
+  player.targetX = player.x;
+  cpu.x = ct.left + ct.w / 2;
+  cpu.y = ct.top + 35;
+  cpu.targetX = cpu.x;
+}
+
+function resetBall(server) {
+  const ct = court();
+  if (server === 'player') {
+    ball.x = player.x;
+    ball.y = player.y - 20;
+    ball.z = 15;
+    ball.vx = 0;
+    ball.vy = 0;
+    ball.vz = 0;
+  } else {
+    ball.x = cpu.x;
+    ball.y = cpu.y + 20;
+    ball.z = 15;
+    ball.vx = 0;
+    ball.vy = 0;
+    ball.vz = 0;
   }
-  resizeParticles();
-  window.addEventListener('resize', resizeParticles);
+  ball.active = false;
+  ball.trail = [];
+  rallyCount = 0;
+}
 
-  for (let i = 0; i < 40; i++) {
-    dots.push({
-      x: Math.random() * pc.width,
-      y: Math.random() * pc.height,
-      r: Math.random() * 2 + 0.5,
-      dx: (Math.random() - 0.5) * 0.3,
-      dy: (Math.random() - 0.5) * 0.3,
-      o: Math.random() * 0.3 + 0.1
-    });
+function serve(server) {
+  const ct = court();
+  if (server === 'player') {
+    ball.vx = (Math.random() - 0.5) * 2;
+    ball.vy = -5.5;
+    ball.vz = 6;
+  } else {
+    // CPU serve
+    const targetX = player.x + (Math.random() - 0.5) * 100;
+    const dx = targetX - ball.x;
+    const dy = ct.bottom - 60 - ball.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const speed = 5;
+    ball.vx = (dx / dist) * speed * 0.4;
+    ball.vy = (dy / dist) * speed;
+    ball.vz = 5.5;
+  }
+  ball.active = true;
+  state = STATE.PLAY;
+}
+
+// ── Input ──
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  const t = e.touches[0];
+  swipe.active = true;
+  swipe.startX = t.clientX;
+  swipe.startY = t.clientY;
+  swipe.startTime = Date.now();
+
+  if (state === STATE.SERVING && servingPlayer === 'player') {
+    serve('player');
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (!swipe.active) return;
+  const t = e.touches[0];
+  swipe.endX = t.clientX;
+  swipe.endY = t.clientY;
+
+  // Move player paddle to follow finger horizontally
+  const ct = court();
+  player.targetX = Math.max(ct.left + player.w / 2, Math.min(ct.right - player.w / 2, t.clientX));
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  if (!swipe.active) return;
+  swipe.active = false;
+
+  const dt = Date.now() - swipe.startTime;
+  const dx = swipe.endX - swipe.startX;
+  const dy = swipe.endY - swipe.startY;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+
+  // If it was a swipe (not just a tap) and ball is near player
+  if (dist > 20 && dt < 500 && state === STATE.PLAY) {
+    tryHit(dx, dy, dist);
+  }
+}, { passive: false });
+
+// Mouse fallback
+canvas.addEventListener('mousedown', (e) => {
+  swipe.active = true;
+  swipe.startX = e.clientX;
+  swipe.startY = e.clientY;
+  swipe.endX = e.clientX;
+  swipe.endY = e.clientY;
+  swipe.startTime = Date.now();
+
+  if (state === STATE.SERVING && servingPlayer === 'player') {
+    serve('player');
+  }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (state === STATE.PLAY || state === STATE.SERVING) {
+    const ct = court();
+    player.targetX = Math.max(ct.left + player.w / 2, Math.min(ct.right - player.w / 2, e.clientX));
+  }
+  if (!swipe.active) return;
+  swipe.endX = e.clientX;
+  swipe.endY = e.clientY;
+});
+
+canvas.addEventListener('mouseup', (e) => {
+  if (!swipe.active) return;
+  swipe.active = false;
+  const dt = Date.now() - swipe.startTime;
+  const dx = swipe.endX - swipe.startX;
+  const dy = swipe.endY - swipe.startY;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  if (dist > 20 && dt < 500 && state === STATE.PLAY) {
+    tryHit(dx, dy, dist);
+  }
+});
+
+function tryHit(dx, dy, dist) {
+  // Check if ball is near player
+  const bDist = Math.abs(ball.x - player.x) + Math.abs(ball.y - player.y);
+  if (bDist > 120 || ball.z > 40) return;
+  if (Date.now() - lastHitTime < 300) return;
+
+  lastHitTime = Date.now();
+  rallyCount++;
+
+  // Determine hit direction and power
+  const power = Math.min(dist / 80, 1.5);
+  const ct = court();
+
+  // Aim toward opponent's side
+  const aimX = cpu.x + (Math.random() - 0.5) * ct.w * 0.6;
+  const aimY = ct.top + 30;
+  const aDx = aimX - ball.x;
+  const aDy = aimY - ball.y;
+  const aDist = Math.sqrt(aDx * aDx + aDy * aDy);
+
+  const speed = 4 + power * 3;
+  ball.vx = (aDx / aDist) * speed + (dx / dist) * power * 1.5;
+  ball.vy = (aDy / aDist) * speed;
+  ball.vz = 3 + power * 2;
+  ball.z = Math.max(ball.z, 5);
+}
+
+// ── CPU AI ──
+function updateCPU() {
+  const ct = court();
+  const now = Date.now();
+
+  // CPU reaction: update target periodically
+  if (now - cpu.lastUpdate > 150 + Math.random() * 100) {
+    cpu.lastUpdate = now;
+
+    if (ball.active && ball.vy < 0) {
+      // Ball going toward CPU - predict landing
+      const timeToReach = Math.abs(cpu.y - ball.y) / Math.abs(ball.vy);
+      const predictX = ball.x + ball.vx * timeToReach;
+      cpu.targetX = predictX + (Math.random() - 0.5) * 30;
+    } else {
+      // Return to center
+      cpu.targetX = ct.left + ct.w / 2 + (Math.random() - 0.5) * 40;
+    }
+    cpu.targetX = Math.max(ct.left + cpu.w / 2, Math.min(ct.right - cpu.w / 2, cpu.targetX));
   }
 
-  function animateParticles() {
-    pctx.clearRect(0, 0, pc.width, pc.height);
-    dots.forEach(d => {
-      d.x += d.dx; d.y += d.dy;
-      if (d.x < 0 || d.x > pc.width) d.dx *= -1;
-      if (d.y < 0 || d.y > pc.height) d.dy *= -1;
-      pctx.beginPath();
-      pctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-      pctx.fillStyle = `rgba(102, 126, 234, ${d.o})`;
-      pctx.fill();
-    });
-    requestAnimationFrame(animateParticles);
-  }
-  animateParticles();
-
-  // Drawing canvas
-  const canvas = document.getElementById('draw-canvas');
-  const ctx = canvas.getContext('2d');
-  const container = document.getElementById('canvas-container');
-  let drawing = false;
-  let currentColor = '#667eea';
-
-  function resizeCanvas() {
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
-  }
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-
-  function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const t = e.touches ? e.touches[0] : e;
-    return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+  // Move toward target
+  const diff = cpu.targetX - cpu.x;
+  const moveSpeed = cpu.speed + rallyCount * 0.1;
+  if (Math.abs(diff) > 2) {
+    cpu.x += Math.sign(diff) * Math.min(Math.abs(diff), moveSpeed);
   }
 
-  function startDraw(e) {
-    e.preventDefault();
-    drawing = true;
-    const p = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(p.x, p.y);
+  // CPU hit
+  if (ball.active && ball.vy < 0 && ball.y < cpu.y + 25 && ball.y > cpu.y - 10 && Math.abs(ball.x - cpu.x) < cpu.w / 2 + 15 && ball.z < 35) {
+    cpuHit();
+  }
+}
+
+function cpuHit() {
+  if (Date.now() - lastHitTime < 250) return;
+  lastHitTime = Date.now();
+  rallyCount++;
+
+  const ct = court();
+  // Aim at player's side with some randomness
+  const aimX = player.x + (Math.random() - 0.5) * ct.w * 0.7;
+  const aimY = ct.bottom - 40;
+  const dx = aimX - ball.x;
+  const dy = aimY - ball.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+
+  const difficulty = Math.min(rallyCount * 0.15, 1.5);
+  const speed = 4 + Math.random() * 2 + difficulty;
+
+  ball.vx = (dx / dist) * speed;
+  ball.vy = (dy / dist) * speed;
+  ball.vz = 3 + Math.random() * 3;
+  ball.z = Math.max(ball.z, 5);
+}
+
+// ── Physics ──
+const GRAVITY = -0.25;
+const BOUNCE = 0.4;
+const FRICTION = 0.98;
+
+function updateBall() {
+  if (!ball.active) return;
+
+  ball.x += ball.vx;
+  ball.y += ball.vy;
+  ball.z += ball.vz;
+  ball.vz += GRAVITY;
+
+  // Air friction
+  ball.vx *= FRICTION;
+  ball.vy *= FRICTION;
+
+  // Trail
+  ball.trail.push({ x: ball.x, y: ball.y, z: ball.z, age: 0 });
+  if (ball.trail.length > 12) ball.trail.shift();
+  ball.trail.forEach(t => t.age++);
+
+  // Bounce on ground
+  if (ball.z <= 0) {
+    ball.z = 0;
+    if (Math.abs(ball.vz) > 0.5) {
+      ball.vz = -ball.vz * BOUNCE;
+    } else {
+      // Ball has stopped bouncing - point scored
+      scorePoint();
+      return;
+    }
   }
 
-  function draw(e) {
-    if (!drawing) return;
-    e.preventDefault();
-    const p = getPos(e);
-    ctx.lineTo(p.x, p.y);
-    ctx.strokeStyle = currentColor;
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.stroke();
+  // Net collision
+  const ct = court();
+  const prevY = ball.y - ball.vy;
+  if ((prevY > ct.netY && ball.y <= ct.netY) || (prevY < ct.netY && ball.y >= ct.netY)) {
+    if (ball.z < 25) { // net height
+      // Hit the net!
+      ball.vy *= -0.3;
+      ball.vx *= 0.5;
+      ball.y = ct.netY + (ball.vy > 0 ? 2 : -2);
+      ball.vz = Math.max(ball.vz, 1);
+    }
   }
 
-  function stopDraw() { drawing = false; }
+  // Out of bounds
+  if (ball.x < ct.left - 30 || ball.x > ct.right + 30 || ball.y < ct.top - 40 || ball.y > ct.bottom + 40) {
+    scorePoint();
+  }
+}
 
-  canvas.addEventListener('mousedown', startDraw);
-  canvas.addEventListener('mousemove', draw);
-  canvas.addEventListener('mouseup', stopDraw);
-  canvas.addEventListener('touchstart', startDraw, { passive: false });
-  canvas.addEventListener('touchmove', draw, { passive: false });
-  canvas.addEventListener('touchend', stopDraw);
+function scorePoint() {
+  const ct = court();
+  // Determine who scored
+  if (ball.y > ct.netY) {
+    // Ball landed on player's side - CPU scores
+    cpuScore++;
+  } else {
+    // Ball landed on CPU's side - player scores
+    playerScore++;
+  }
 
-  document.querySelectorAll('.color-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentColor = btn.dataset.color;
-    });
+  document.getElementById('player-score').textContent = playerScore;
+  document.getElementById('cpu-score').textContent = cpuScore;
+
+  // Check for game over (first to 11, win by 2)
+  if ((playerScore >= 11 || cpuScore >= 11) && Math.abs(playerScore - cpuScore) >= 2) {
+    state = STATE.GAME_OVER;
+    showGameOver();
+    return;
+  }
+
+  // Switch server every 2 points
+  const totalPoints = playerScore + cpuScore;
+  servingPlayer = (Math.floor(totalPoints / 2) % 2 === 0) ? 'player' : 'cpu';
+
+  state = STATE.POINT_SCORED;
+  setTimeout(() => {
+    resetBall(servingPlayer);
+    if (servingPlayer === 'cpu') {
+      state = STATE.SERVING;
+      setTimeout(() => serve('cpu'), 800);
+    } else {
+      state = STATE.SERVING;
+    }
+  }, 1000);
+}
+
+// ── Drawing ──
+function drawCourt() {
+  const ct = court();
+
+  // Court surface - gradient for perspective
+  const grad = c.createLinearGradient(ct.left, ct.top, ct.left, ct.bottom);
+  grad.addColorStop(0, '#2d6b30');
+  grad.addColorStop(1, '#3a8c3e');
+  c.fillStyle = grad;
+  c.fillRect(ct.left, ct.top, ct.w, ct.h);
+
+  // Court border
+  c.strokeStyle = 'rgba(255,255,255,0.7)';
+  c.lineWidth = 2.5;
+  c.strokeRect(ct.left, ct.top, ct.w, ct.h);
+
+  // Center line
+  c.beginPath();
+  c.moveTo(ct.left + ct.w / 2, ct.top);
+  c.lineTo(ct.left + ct.w / 2, ct.bottom);
+  c.strokeStyle = 'rgba(255,255,255,0.25)';
+  c.lineWidth = 1.5;
+  c.stroke();
+
+  // Kitchen (no-volley zone)
+  c.fillStyle = 'rgba(255, 200, 50, 0.1)';
+  c.fillRect(ct.left, ct.kitchenTop, ct.w, ct.kitchenBot - ct.kitchenTop);
+
+  // Kitchen lines
+  c.strokeStyle = 'rgba(255, 200, 50, 0.5)';
+  c.lineWidth = 1.5;
+  c.setLineDash([6, 4]);
+  c.beginPath();
+  c.moveTo(ct.left, ct.kitchenTop);
+  c.lineTo(ct.right, ct.kitchenTop);
+  c.moveTo(ct.left, ct.kitchenBot);
+  c.lineTo(ct.right, ct.kitchenBot);
+  c.stroke();
+  c.setLineDash([]);
+
+  // Net
+  c.strokeStyle = '#ddd';
+  c.lineWidth = 3;
+  c.beginPath();
+  c.moveTo(ct.left - 8, ct.netY);
+  c.lineTo(ct.right + 8, ct.netY);
+  c.stroke();
+
+  // Net posts
+  c.fillStyle = '#aaa';
+  c.fillRect(ct.left - 10, ct.netY - 5, 6, 10);
+  c.fillRect(ct.right + 4, ct.netY - 5, 6, 10);
+
+  // Net mesh effect
+  c.strokeStyle = 'rgba(255,255,255,0.15)';
+  c.lineWidth = 0.5;
+  for (let x = ct.left; x < ct.right; x += 12) {
+    c.beginPath();
+    c.moveTo(x, ct.netY - 2);
+    c.lineTo(x, ct.netY + 2);
+    c.stroke();
+  }
+}
+
+function drawPaddle(p, color) {
+  // Shadow
+  c.fillStyle = 'rgba(0,0,0,0.3)';
+  c.beginPath();
+  c.ellipse(p.x, p.y + 3, p.w / 2, p.h / 2 + 1, 0, 0, Math.PI * 2);
+  c.fill();
+
+  // Paddle
+  c.fillStyle = color;
+  c.beginPath();
+  c.ellipse(p.x, p.y, p.w / 2, p.h / 2, 0, 0, Math.PI * 2);
+  c.fill();
+
+  // Highlight
+  c.fillStyle = 'rgba(255,255,255,0.25)';
+  c.beginPath();
+  c.ellipse(p.x, p.y - 2, p.w / 3, p.h / 3, 0, 0, Math.PI * 2);
+  c.fill();
+}
+
+function drawBall() {
+  if (!ball.active && state !== STATE.SERVING) return;
+
+  // Trail
+  ball.trail.forEach((t, i) => {
+    const alpha = (1 - t.age / 12) * 0.3;
+    const size = ball.radius * (1 - t.age / 15);
+    if (size > 0) {
+      c.fillStyle = `rgba(200, 230, 50, ${alpha})`;
+      c.beginPath();
+      c.arc(t.x, t.y - t.z, size, 0, Math.PI * 2);
+      c.fill();
+    }
   });
 
-  function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Ball shadow
+  const shadowScale = Math.max(0.3, 1 - ball.z / 80);
+  c.fillStyle = `rgba(0,0,0,${0.3 * shadowScale})`;
+  c.beginPath();
+  c.ellipse(ball.x, ball.y, ball.radius * shadowScale, ball.radius * shadowScale * 0.5, 0, 0, Math.PI * 2);
+  c.fill();
+
+  // Ball (drawn elevated by z)
+  const drawY = ball.y - ball.z;
+  c.fillStyle = '#c8e632';
+  c.beginPath();
+  c.arc(ball.x, drawY, ball.radius, 0, Math.PI * 2);
+  c.fill();
+
+  // Ball highlight
+  c.fillStyle = 'rgba(255,255,255,0.5)';
+  c.beginPath();
+  c.arc(ball.x - 2, drawY - 2, ball.radius * 0.4, 0, Math.PI * 2);
+  c.fill();
+
+  // Ball outline
+  c.strokeStyle = '#a0b828';
+  c.lineWidth = 1;
+  c.beginPath();
+  c.arc(ball.x, drawY, ball.radius, 0, Math.PI * 2);
+  c.stroke();
+}
+
+function drawServePrompt() {
+  if (state === STATE.SERVING && servingPlayer === 'player') {
+    c.fillStyle = 'rgba(255,255,255,0.7)';
+    c.font = '600 1rem system-ui, sans-serif';
+    c.textAlign = 'center';
+    c.fillText('Tap to serve', canvas.width / 2, canvas.height - 50);
+  }
+}
+
+// ── UI ──
+function showGameOver() {
+  const resultText = document.getElementById('result-text');
+  const finalScore = document.getElementById('final-score');
+  const resultSub = document.getElementById('result-sub');
+
+  if (playerScore > cpuScore) {
+    resultText.textContent = 'You Win!';
+    resultText.style.color = '#4CAF50';
+  } else {
+    resultText.textContent = 'You Lose';
+    resultText.style.color = '#ff6b6b';
+  }
+  finalScore.textContent = `${playerScore} - ${cpuScore}`;
+  resultSub.textContent = playerScore > cpuScore ? 'Great match!' : 'Better luck next time!';
+
+  document.getElementById('game-over-screen').classList.remove('hidden');
+  document.getElementById('score-hud').classList.add('hidden');
+}
+
+function startGame() {
+  playerScore = 0;
+  cpuScore = 0;
+  servingPlayer = 'player';
+  document.getElementById('player-score').textContent = '0';
+  document.getElementById('cpu-score').textContent = '0';
+
+  document.getElementById('start-screen').classList.add('hidden');
+  document.getElementById('game-over-screen').classList.add('hidden');
+  document.getElementById('score-hud').classList.remove('hidden');
+
+  initPositions();
+  resetBall('player');
+  state = STATE.SERVING;
+}
+
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('restart-btn').addEventListener('click', startGame);
+
+// ── Player movement smoothing ──
+function updatePlayer() {
+  const diff = player.targetX - player.x;
+  player.x += diff * 0.25;
+}
+
+// ── Game Loop ──
+function gameLoop() {
+  // Clear
+  c.fillStyle = '#1a1a2e';
+  c.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (state !== STATE.MENU && state !== STATE.GAME_OVER) {
+    drawCourt();
+    updatePlayer();
+    updateCPU();
+    updateBall();
+    drawPaddle(cpu, '#e74c3c');
+    drawBall();
+    drawPaddle(player, '#3498db');
+    drawServePrompt();
+  } else if (state === STATE.MENU) {
+    // Draw court in background for menu
+    drawCourt();
   }
 
-  // Counter
-  let count = 0;
-  function updateCounter(n) {
-    count = Math.max(0, count + n);
-    const el = document.getElementById('counter');
-    el.textContent = count;
-    el.classList.add('bump');
-    setTimeout(() => el.classList.remove('bump'), 100);
-  }
+  requestAnimationFrame(gameLoop);
+}
 
-  // Toast
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.transform = 'translateX(-50%) translateY(0)';
-    setTimeout(() => {
-      t.style.transform = 'translateX(-50%) translateY(100px)';
-    }, 1800);
-  }
+initPositions();
+gameLoop();
 </script>
 
 </body>
